@@ -117,10 +117,6 @@ public class Server extends Thread{
 
     private static void receiveFile(String fileName) throws Exception{
         int bytes = 0;
-        // File file=new File(fileName);
-        // if (!file.exists()) {
-        //     file.createNewFile();
-        // }
         FileOutputStream fileOutputStream = new FileOutputStream(fileName);
         
         long size = dataInputStream.readLong();     // read file size
@@ -144,7 +140,7 @@ public class Server extends Thread{
                 System.err.println(err.nextLine());
             err.close();
     }
-    public static void manambatra(String filename) throws Exception{
+    /*public static void manambatra(String filename) throws Exception{
         Vector<String> cat=new Vector<>();
         cat.add("cat");
         cat.add("../stock1/"+filename+".part*");
@@ -168,7 +164,7 @@ public class Server extends Thread{
         manoratra(maka);
         manoratra(mamafa);
         manoratra(getfile);
-    }
+    }*/
     public static String getExtension(String s){
         String ext="";
         ext=s.replaceAll("^.*\\.(.*)$", "$1");

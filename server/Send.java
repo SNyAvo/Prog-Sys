@@ -16,17 +16,17 @@ public class Send extends Thread{
             dataInputStream = new DataInputStream(this.getSocket().getInputStream());
             dataOutputStream = new DataOutputStream(this.getSocket().getOutputStream());
 
-            Scanner sc=new Scanner(dataInputStream);
-            PrintWriter pw=new PrintWriter(dataOutputStream);
+            // Scanner sc=new Scanner(dataInputStream);
+            // PrintWriter pw=new PrintWriter(dataOutputStream);
 
             String test=dataInputStream.readUTF();
-            String ext=getExtension(test);
-            System.out.println(test);
-            System.out.println("extension e "+ext);
+            // String ext=getExtension(test);
+            // System.out.println(test);
+            // System.out.println("extension e "+ext);
             receiveFile(test);
             FileListWrite(test);
             sparatefile(test,this.getIsa());
-            System.out.println("isa="+Server.CheckServ(this.getList()));    
+            // System.out.println("isa="+Server.CheckServ(this.getList()));    
             Server.sendtoServ(this.getList(), test);
 
             dataInputStream.close();

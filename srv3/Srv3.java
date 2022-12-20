@@ -9,11 +9,11 @@ public class Srv3 {
         ServerSocket ss=new ServerSocket(10003);
         while(true){
             Socket s=ss.accept();
-            System.out.println("connecte");
+
             dis=new DataInputStream(s.getInputStream());
             dos=new DataOutputStream(s.getOutputStream());
             String name =dis.readUTF();
-            System.out.println(name);
+            // System.out.println(name);
             receiveFile(name);
             dis.close();
             dos.close();
@@ -23,10 +23,7 @@ public class Srv3 {
     }
     private static void receiveFile(String fileName) throws Exception{
         int bytes = 0;
-        // File file=new File(fileName);
-        // if (!file.exists()) {
-        //     file.createNewFile();
-        // }
+
         FileOutputStream fileOutputStream = new FileOutputStream(fileName);
         
         long size = dis.readLong();     // read file size
