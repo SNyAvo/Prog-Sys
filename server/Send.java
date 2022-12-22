@@ -21,7 +21,7 @@ public class Send extends Thread{
             String test=dataInputStream.readUTF();
             int n=Server.CheckServ(this.getList());
             String ext=getExtension(test);
-            System.out.println(ext);
+            // System.out.println(ext);
             if (ext==".maka") {
                 for (int i = 0; i < n; i++) {
                     Server.getFile((makaAnarana(test)+"."+"0"+i),this.getList());
