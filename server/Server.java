@@ -2,93 +2,132 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class Server {
+
+public class Server extends Thread{
     private static DataOutputStream dataOutputStream = null;
     private static DataInputStream dataInputStream = null;
 
     public static void main(String[] args) throws Exception{
-        
+        new Server().start();
+    }
+    public void run(){
+        try{
+
             ServerSocket serverSocket = new ServerSocket(5000);
             System.out.println("listening to port:5000");
+            while(true){
             Socket clientSocket = serverSocket.accept();
-            System.out.println(clientSocket+" connected.");
-            dataInputStream = new DataInputStream(clientSocket.getInputStream());
-            dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
+            
+            Socket[] s=new Socket[4];
+            try {
+                try {
+                    s[0]=new Socket("localhost", 10001);
+                } catch (Exception ex) {
+                    
+                }
+                try {
+                    s[1]=new Socket("localhost",10002);
+                } catch (Exception e) {
+                    
+                }
+                try {
+                    s[2]=new Socket("localhost",10003);
+                } catch (Exception e) {
+                    
+                }
+                try {
+                    s[3]=new Socket("localhost",10004);
+                } catch (Exception e) {
+                    
+                }
+                
+            } catch (Exception e) {
 
-
-            Scanner sc=new Scanner(dataInputStream);
-            PrintWriter pw=new PrintWriter(dataOutputStream);
-
-            InputStream is=clientSocket.getInputStream();
-            InputStreamReader isr=new InputStreamReader(is);
-            BufferedReader br=new BufferedReader(isr);
-            String test=br.readLine();
-            System.out.println(test);
-            receiveFile(test);
-
-            dataInputStream.close();
-            dataOutputStream.close();
-            clientSocket.close();
+            }
+          
+            System.out.println(CheckServ(s));
+            int n=CheckServ(s);
+            
+            new Send(clientSocket,n,s).start();            
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
         
+    }
+
+    public static int CheckServ(Socket[] s){
+        int v=0;
+        for (int i = 0; i < s.length; i++) {
+            if (s[i]!=null) {
+                v++;
+            }
+        }
+        return v;
+    }
+    public static Boolean ifConnect(Socket s){
+        if (s!=null) {
+            return true;
+        }
+        return false;
+    }
+    private static void sendFile(String path,Socket s) throws Exception{
+        int bytes = 0;
+        File file = new File(path);
+        FileInputStream fileInputStream = new FileInputStream(file);
+        OutputStream os=s.getOutputStream();
+        DataOutputStream dos=new DataOutputStream(os);
+        //send file name
+        dos.writeUTF(file.getName());
+        // send file size
+        dos.writeLong(file.length());
+        // break file into chunks
+        byte[] buffer = new byte[4*1024];
+        while ((bytes=fileInputStream.read(buffer))!=-1){
+            dos.write(buffer,0,bytes);
+            dos.flush();
+        }
+        fileInputStream.close();
+    }
+    private static Socket[] getListServ(Socket[] s){
+        Socket[] list=new Socket[CheckServ(s)];
+        int c=0;
+        for (int i = 0; i < s.length; i++) {
+            if (s[i]!=null) {
+                list[c]=s[i];
+                c++;
+            }
+        }
+        return list;
+    }
+    public static void sendtoServ(Socket[] s,String fileName)throws Exception{
+        Socket[] list=getListServ(s);
+        for (int i = 0; i < list.length; i++) {
+            sendFile(fileName+".0"+i, list[i]);
+        }
+        mamafa(fileName);
+    }
+    public static void mamafa(String s) throws Exception{
+        Vector<String> m=new Vector<>();
+        m.add("./function.sh");
+        m.add(s);
+        String[] delete=m.toArray(new String[m.size()]);
+        manoratra(delete);
     }
 
     private static void receiveFile(String fileName) throws Exception{
         int bytes = 0;
         FileOutputStream fileOutputStream = new FileOutputStream(fileName);
         
-        long size = dataInputStream.readLong();     
+        long size = dataInputStream.readLong();     // read file size
         byte[] buffer = new byte[4*1024];
         while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
             fileOutputStream.write(buffer,0,bytes);
-            size -= bytes;      
+            size -= bytes;      // read upto file size
         }
         fileOutputStream.close();
     }
-    private static void sparatefile(String fileName) throws Exception{
-        File file=new File(fileName);
-        int size=(int)(file.length()/2);
-        String filesize=Integer.toString(size);
-        Vector<String> s=new Vector<>();
-        s.add("zip");
-        s.add(fileName+".zip");
-        s.add(fileName);
-        String[] zip=s.toArray(new String[s.size()]);
-        Vector<String> del=new Vector<>();
-        del.add("rm");
-        del.add(fileName);
-        String[] delete=del.toArray(new String[del.size()]);
-        Vector<String> spt=new Vector<>();
-        spt.add("split");
-        spt.add("-b");
-        spt.add(filesize);
-        spt.add(fileName+".zip");
-        spt.add(fileName+".part");
-        String[] split=spt.toArray(new String[spt.size()]);
-        Vector<String> sk1=new Vector<>();
-        sk1.add("mv");
-        sk1.add(fileName+".partaa");
-        sk1.add("../stock1");
-        String[] stock1=sk1.toArray(new String[sk1.size()]);
-        
-        Vector<String> sk2=new Vector<>();
-        sk2.add("mv");
-        sk2.add(fileName+".partab");
-        sk2.add("../stock2");
-        String[] stock2=sk2.toArray(new String[sk2.size()]);
-        Vector<String> del1=new Vector<>();
-        del1.add("rm");
-        del1.add(fileName+".zip");
-        String[] delete2=del1.toArray(new String[del1.size()]);
 
-        manoratra(zip);
-        manoratra(delete);
-        manoratra(split);
-        manoratra(stock1);
-        Thread.sleep(100);
-        manoratra(stock2);
-        manoratra(delete2);
-
-    }
     public static void manoratra(String[] s)throws Exception{
         Process proc=Runtime.getRuntime().exec(s);
             Scanner out=new Scanner(proc.getInputStream());
@@ -101,18 +140,18 @@ public class Server {
                 System.err.println(err.nextLine());
             err.close();
     }
-    public static void manambatra(String filename) throws Exception{
+    /*public static void manambatra(String filename) throws Exception{
         Vector<String> cat=new Vector<>();
         cat.add("cat");
-        cat.add("../stock1/"+filename+"part*");
-        cat.add("../stock2/"+filename+"part*");
+        cat.add("../stock1/"+filename+".part*");
+        cat.add("../stock2/"+filename+".part*");
         cat.add(">");
-        cat.add(filename+".zip");
+        cat.add(filename);
         String[] maka=cat.toArray(new String[cat.size()]);
         Vector<String> mamafafa=new Vector<>();
         mamafafa.add("rm");
-        mamafafa.add("../stock1/"+filename+"part*");
-        mamafafa.add("../stock2/"+filename+"part*");
+        mamafafa.add("../stock1/"+filename+".part*");
+        mamafafa.add("../stock2/"+filename+".part*");
         String[]mamafa=mamafafa.toArray(new String[mamafafa.size()]);
         Vector<String> mamerina=new Vector<>();
         mamerina.add("unzip");
@@ -125,5 +164,27 @@ public class Server {
         manoratra(maka);
         manoratra(mamafa);
         manoratra(getfile);
+    }*/
+    public static String getExtension(String s){
+        String ext="";
+        ext=s.replaceAll("^.*\\.(.*)$", "$1");
+        return "."+ext;
+    }
+    private static void sendFile(String path,DataOutputStream dataOutputStream) throws Exception{
+        int bytes = 0;
+        File file = new File(path);
+        FileInputStream fileInputStream = new FileInputStream(file);
+        // mandefa anarana
+        dataOutputStream.writeUTF(file.getName());
+        // send file size
+        dataOutputStream.writeLong(file.length());
+        
+        // zarazaraina
+        byte[] buffer = new byte[4*1024];
+        while ((bytes=fileInputStream.read(buffer))!=-1){
+            dataOutputStream.write(buffer,0,bytes);
+            dataOutputStream.flush();
+        }
+        fileInputStream.close();
     }
 }
