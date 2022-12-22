@@ -22,23 +22,20 @@ public class Client {
         String path="";
         if (dialogue.showSaveDialog(null)== JFileChooser.APPROVE_OPTION) {
             file=dialogue.getSelectedFile();
-            // sendFile(file.getAbsolutePath());
-            // System.out.println(file.getAbsolutePath());
             path=file.getAbsolutePath();
             sendFile(path);
         }
     }
 
     public static void main(String[] args) throws Exception{
-        
             Socket socket = new Socket("localhost",5000);
             InputStream is=socket.getInputStream();
             OutputStream os=socket.getOutputStream();
             dataInputStream = new DataInputStream(is);
             dataOutputStream = new DataOutputStream(os);
-
+            
             new Liste();
-
+            
         
     }
 
@@ -46,18 +43,22 @@ public class Client {
         int bytes = 0;
         File file = new File(path);
         FileInputStream fileInputStream = new FileInputStream(file);
-        // send filename
+        //mandefa anarana
         dataOutputStream.writeUTF(file.getName());
+
         // send file size
         dataOutputStream.writeLong(file.length());
-        // zarazaraina
+        
+        // break file into chunks
         byte[] buffer = new byte[4*1024];
         while ((bytes=fileInputStream.read(buffer))!=-1){
             dataOutputStream.write(buffer,0,bytes);
             dataOutputStream.flush();
         }
+
         fileInputStream.close();
     }
+
     private static void receiveFile(String fileName) throws Exception{
         int bytes = 0;
         FileOutputStream fileOutputStream = new FileOutputStream(fileName);

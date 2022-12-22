@@ -12,28 +12,29 @@ public class Send extends Thread{
 
     public void run(){
         try {
-            System.out.println(this.getSocket()+" connected.");
+            if (this.getSocket()!=null) {
             dataInputStream = new DataInputStream(this.getSocket().getInputStream());
             dataOutputStream = new DataOutputStream(this.getSocket().getOutputStream());
-
-            // Scanner sc=new Scanner(dataInputStream);
-            // PrintWriter pw=new PrintWriter(dataOutputStream);
+            Scanner sc=new Scanner(dataInputStream);
+            PrintWriter pw=new PrintWriter(dataOutputStream);
 
             String test=dataInputStream.readUTF();
-            // String ext=getExtension(test);
-            // System.out.println(test);
-            // System.out.println("extension e "+ext);
+            String ext=getExtension(test);
+            System.out.println(test);
+            System.out.println("extension e "+ext);
             receiveFile(test);
             FileListWrite(test);
+            int n=Server.CheckServ(this.getList());
             sparatefile(test,this.getIsa());
-            // System.out.println("isa="+Server.CheckServ(this.getList()));    
+            System.out.println("isa="+n);    
             Server.sendtoServ(this.getList(), test);
+   
+            new Send(this.getSocket(),n,this.getList()).start();
 
-            dataInputStream.close();
-            dataOutputStream.close();
-            // clientSocket.close();
+            }
+            
         } catch (Exception e) {
-            e.printStackTrace();
+            
         }
     }
     public Send(Socket s,int n,Socket[] list){
@@ -41,6 +42,7 @@ public class Send extends Thread{
         this.setIsa(n);
         this.setList(list);             
     }
+    public Send(){}
     public Socket getSocket() {
         return socket;
     }
@@ -48,7 +50,12 @@ public class Send extends Thread{
         return isa;
     }
     public void setIsa(int isa) {
-        this.isa = isa;
+        if (isa<=0) {
+            this.isa=1;
+        }else{
+            this.isa = isa;
+        }
+        
     }
 
     public void setSocket(Socket socket) {
@@ -135,12 +142,12 @@ public class Send extends Thread{
         int bytes = 0;
         File file = new File(path);
         FileInputStream fileInputStream = new FileInputStream(file);
-        // mandefa anarana
+        
         dataOutputStream.writeUTF(file.getName());
         // send file size
         dataOutputStream.writeLong(file.length());
         
-        // zarazaraina
+        // break file into chunks
         byte[] buffer = new byte[4*1024];
         while ((bytes=fileInputStream.read(buffer))!=-1){
             dataOutputStream.write(buffer,0,bytes);

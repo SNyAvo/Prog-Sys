@@ -43,8 +43,8 @@ public class Server extends Thread{
                 
             } catch (Exception e) {
 
+
             }
-          
             System.out.println(CheckServ(s));
             int n=CheckServ(s);
             
@@ -77,7 +77,7 @@ public class Server extends Thread{
         FileInputStream fileInputStream = new FileInputStream(file);
         OutputStream os=s.getOutputStream();
         DataOutputStream dos=new DataOutputStream(os);
-        //send file name
+        //mandefa anarana
         dos.writeUTF(file.getName());
         // send file size
         dos.writeLong(file.length());
@@ -108,7 +108,12 @@ public class Server extends Thread{
         mamafa(fileName);
     }
     public static void mamafa(String s) throws Exception{
+        String File="./s.*";
         Vector<String> m=new Vector<>();
+        // m.add("/bin/sh");
+        // m.add("-c");
+        // m.add("rm");
+        // m.add("./"+s+"*");
         m.add("./function.sh");
         m.add(s);
         String[] delete=m.toArray(new String[m.size()]);
@@ -117,6 +122,10 @@ public class Server extends Thread{
 
     private static void receiveFile(String fileName) throws Exception{
         int bytes = 0;
+        // File file=new File(fileName);
+        // if (!file.exists()) {
+        //     file.createNewFile();
+        // }
         FileOutputStream fileOutputStream = new FileOutputStream(fileName);
         
         long size = dataInputStream.readLong();     // read file size
@@ -127,7 +136,6 @@ public class Server extends Thread{
         }
         fileOutputStream.close();
     }
-
     public static void manoratra(String[] s)throws Exception{
         Process proc=Runtime.getRuntime().exec(s);
             Scanner out=new Scanner(proc.getInputStream());
@@ -140,13 +148,13 @@ public class Server extends Thread{
                 System.err.println(err.nextLine());
             err.close();
     }
-    /*public static void manambatra(String filename) throws Exception{
+    public static void manambatra(String filename) throws Exception{
         Vector<String> cat=new Vector<>();
         cat.add("cat");
         cat.add("../stock1/"+filename+".part*");
         cat.add("../stock2/"+filename+".part*");
         cat.add(">");
-        cat.add(filename);
+        cat.add(filename+".zip");
         String[] maka=cat.toArray(new String[cat.size()]);
         Vector<String> mamafafa=new Vector<>();
         mamafafa.add("rm");
@@ -164,7 +172,7 @@ public class Server extends Thread{
         manoratra(maka);
         manoratra(mamafa);
         manoratra(getfile);
-    }*/
+    }
     public static String getExtension(String s){
         String ext="";
         ext=s.replaceAll("^.*\\.(.*)$", "$1");
@@ -174,12 +182,12 @@ public class Server extends Thread{
         int bytes = 0;
         File file = new File(path);
         FileInputStream fileInputStream = new FileInputStream(file);
-        // mandefa anarana
+        
         dataOutputStream.writeUTF(file.getName());
         // send file size
         dataOutputStream.writeLong(file.length());
         
-        // zarazaraina
+        // break file into chunks
         byte[] buffer = new byte[4*1024];
         while ((bytes=fileInputStream.read(buffer))!=-1){
             dataOutputStream.write(buffer,0,bytes);
