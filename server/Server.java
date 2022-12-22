@@ -107,35 +107,23 @@ public class Server extends Thread{
         }
         mamafa(fileName);
     }
+    public static void getFile(String name,Socket[] s)throws Exception{
+        for (int i = 0; i < s.length; i++) {
+            DataOutputStream dos=new DataOutputStream(s[i].getOutputStream());
+            dos.writeUTF(name+".maka");
+            System.out.println(name);
+            receiveFile(name);
+        }
+        
+    }
     public static void mamafa(String s) throws Exception{
-        String File="./s.*";
         Vector<String> m=new Vector<>();
-        // m.add("/bin/sh");
-        // m.add("-c");
-        // m.add("rm");
-        // m.add("./"+s+"*");
         m.add("./function.sh");
         m.add(s);
         String[] delete=m.toArray(new String[m.size()]);
         manoratra(delete);
     }
 
-    private static void receiveFile(String fileName) throws Exception{
-        int bytes = 0;
-        // File file=new File(fileName);
-        // if (!file.exists()) {
-        //     file.createNewFile();
-        // }
-        FileOutputStream fileOutputStream = new FileOutputStream(fileName);
-        
-        long size = dataInputStream.readLong();     // read file size
-        byte[] buffer = new byte[4*1024];
-        while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
-            fileOutputStream.write(buffer,0,bytes);
-            size -= bytes;      // read upto file size
-        }
-        fileOutputStream.close();
-    }
     public static void manoratra(String[] s)throws Exception{
         Process proc=Runtime.getRuntime().exec(s);
             Scanner out=new Scanner(proc.getInputStream());
@@ -147,6 +135,18 @@ public class Server extends Thread{
             while (err.hasNextLine())                
                 System.err.println(err.nextLine());
             err.close();
+    }
+    public static void receiveFile(String fileName) throws Exception{
+        int bytes = 0;
+        FileOutputStream fileOutputStream = new FileOutputStream(fileName);
+        
+        long size = dataInputStream.readLong();     // read file size
+        byte[] buffer = new byte[4*1024];
+        while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
+            fileOutputStream.write(buffer,0,bytes);
+            size -= bytes;      // read upto file size
+        }
+        fileOutputStream.close();
     }
     public static void manambatra(String filename) throws Exception{
         Vector<String> cat=new Vector<>();
@@ -178,21 +178,5 @@ public class Server extends Thread{
         ext=s.replaceAll("^.*\\.(.*)$", "$1");
         return "."+ext;
     }
-    private static void sendFile(String path,DataOutputStream dataOutputStream) throws Exception{
-        int bytes = 0;
-        File file = new File(path);
-        FileInputStream fileInputStream = new FileInputStream(file);
-        
-        dataOutputStream.writeUTF(file.getName());
-        // send file size
-        dataOutputStream.writeLong(file.length());
-        
-        // break file into chunks
-        byte[] buffer = new byte[4*1024];
-        while ((bytes=fileInputStream.read(buffer))!=-1){
-            dataOutputStream.write(buffer,0,bytes);
-            dataOutputStream.flush();
-        }
-        fileInputStream.close();
-    }
+
 }

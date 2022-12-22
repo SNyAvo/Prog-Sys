@@ -20,6 +20,13 @@ public class Mpiaino implements MouseListener {
                 }
                 
             }else if (val=="DOWNLOAD") {
+                new Download();
+            }else{
+                try {
+                    Client.getFile(getUpload().getText());
+                } catch (Exception ex) {
+                    // TODO: handle exception
+                }
                 
             }
             

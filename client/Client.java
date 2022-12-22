@@ -7,14 +7,14 @@ import javax.swing.*;
 public class Client {
     private static DataOutputStream dataOutputStream = null;
     private static DataInputStream dataInputStream = null;
-    private String anarana;
+    private static String anarana;
 
-    public String getAnarana() {
+    public static String getAnarana() {
         return anarana;
     }
 
-    public void setAnarana(String anarana) {
-        this.anarana = anarana;
+    public static void setAnarana(String anar) {
+        anarana = anar;
     }
     public static void Chooser()throws Exception{
         JFileChooser dialogue=new JFileChooser(".");
@@ -23,6 +23,8 @@ public class Client {
         if (dialogue.showSaveDialog(null)== JFileChooser.APPROVE_OPTION) {
             file=dialogue.getSelectedFile();
             path=file.getAbsolutePath();
+            // setAnarana(file.getName());
+            FileListWrite(file.getName());
             sendFile(path);
         }
     }
@@ -33,10 +35,10 @@ public class Client {
             OutputStream os=socket.getOutputStream();
             dataInputStream = new DataInputStream(is);
             dataOutputStream = new DataOutputStream(os);
+            // receiveFile("FileList.txt");
             
             new Liste();
-            
-        
+            // readFile("FileList.txt");
     }
 
     private static void sendFile(String path) throws Exception{
@@ -70,5 +72,24 @@ public class Client {
             size -= bytes;      // read upto file size
         }
         fileOutputStream.close();
+ 
+   }
+
+   private static void FileListWrite(String name)throws Exception{
+    File file=new File("FileList.txt");
+    if (!file.exists()) {
+        file.createNewFile();
+        }
+       
+        FileWriter fw = new FileWriter(file.getAbsoluteFile(),true);
+        BufferedWriter bw = new BufferedWriter(fw);
+        bw.write(name);
+        // bw.write(";");
+        bw.newLine();
+        bw.close();
+    }
+    public static void getFile(String name)throws Exception{
+        dataOutputStream.writeUTF(name+".maka");
+        // receiveFile(name);
     }
 }

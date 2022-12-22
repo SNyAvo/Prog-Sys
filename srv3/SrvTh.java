@@ -21,6 +21,10 @@ public class SrvTh extends Thread{
             dis=new DataInputStream(this.getSocket().getInputStream());
             dos=new DataOutputStream(this.getSocket().getOutputStream());
             String name =dis.readUTF();
+            String ext=getExtension(name);
+            if (ext==".maka") {
+                sendFile(makaAnarana(name));
+            }
             System.out.println(name);
             receiveFile(name);
             new SrvTh(this.getSocket()).start();
@@ -42,5 +46,32 @@ public class SrvTh extends Thread{
         // dis.close();
         // dos.close();
         fileOutputStream.close();
+    }
+    private static void sendFile(String path) throws Exception{
+        int bytes = 0;
+        File file = new File(path);
+        FileInputStream fileInputStream = new FileInputStream(file);
+        
+        dos.writeUTF(file.getName());
+        // send file size
+        dos.writeLong(file.length());
+        
+        // break file into chunks
+        byte[] buffer = new byte[4*1024];
+        while ((bytes=fileInputStream.read(buffer))!=-1){
+            dos.write(buffer,0,bytes);
+            dos.flush();
+        }
+        fileInputStream.close();
+    }
+    public static String getExtension(String s){
+        String ext="";
+        ext=s.replaceAll("^.*\\.(.*)$", "$1");
+        return "."+ext;
+    }
+    public static String makaAnarana(String s){
+        String[] split=s.split(".");
+        String name=split[0]+"."+split[1]+"."+split[2];
+        return name;
     }
 }

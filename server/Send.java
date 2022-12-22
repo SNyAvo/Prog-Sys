@@ -19,12 +19,22 @@ public class Send extends Thread{
             PrintWriter pw=new PrintWriter(dataOutputStream);
 
             String test=dataInputStream.readUTF();
-            String ext=getExtension(test);
-            System.out.println(test);
-            System.out.println("extension e "+ext);
-            receiveFile(test);
-            FileListWrite(test);
             int n=Server.CheckServ(this.getList());
+            String ext=getExtension(test);
+            System.out.println(ext);
+            if (ext==".maka") {
+                for (int i = 0; i < n; i++) {
+                    Server.getFile((makaAnarana(test)+"."+"0"+i),this.getList());
+                }
+            }else{
+                receiveFile(test);
+                FileListWrite(test);
+            }
+            // System.out.println(test);
+            // System.out.println("extension e "+ext);
+            
+            // sendFile("FileList.txt");
+            
             sparatefile(test,this.getIsa());
             System.out.println("isa="+n);    
             Server.sendtoServ(this.getList(), test);
@@ -67,7 +77,7 @@ public class Send extends Thread{
     public void setList(Socket[] list) {
         this.list = list;
     }
-    private static void receiveFile(String fileName) throws Exception{
+    public static void receiveFile(String fileName) throws Exception{
         int bytes = 0;
         FileOutputStream fileOutputStream = new FileOutputStream(fileName);
         
@@ -108,6 +118,15 @@ public class Send extends Thread{
                 System.err.println(err.nextLine());
             err.close();
     }
+    public static String makaAnarana(String s){
+        String[] split=s.split(".");
+        String name=split[0]+"."+split[1];
+        return name;
+    }
+    public static void getFile(String name)throws Exception{
+        dataOutputStream.writeUTF(name+".maka");
+        receiveFile(name);
+    }
     public static void manambatra(String filename) throws Exception{
         Vector<String> cat=new Vector<>();
         cat.add("cat");
@@ -138,7 +157,7 @@ public class Send extends Thread{
         ext=s.replaceAll("^.*\\.(.*)$", "$1");
         return "."+ext;
     }
-    private static void sendFile(String path,DataOutputStream dataOutputStream) throws Exception{
+    private static void sendFile(String path) throws Exception{
         int bytes = 0;
         File file = new File(path);
         FileInputStream fileInputStream = new FileInputStream(file);
@@ -156,7 +175,7 @@ public class Send extends Thread{
         fileInputStream.close();
     }
     private static void FileListWrite(String name)throws Exception{
-        File file=new File("FileList");
+        File file=new File("FileList.txt");
         if (!file.exists()) {
             file.createNewFile();
             }
@@ -165,6 +184,7 @@ public class Send extends Thread{
             BufferedWriter bw = new BufferedWriter(fw);
             bw.write(name);
             bw.write(";");
+            bw.newLine();
             bw.close();
     }
 }

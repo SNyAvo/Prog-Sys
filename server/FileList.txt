@@ -1,0 +1,3 @@
+C1.pdf;
+tsisy.txt;
+C1.pdf.maka;
